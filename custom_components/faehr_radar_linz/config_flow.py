@@ -1,4 +1,4 @@
-"""Config flow for Fähr-Radar Linz."""
+"""Config flow for Fährinformation Linz/Kripp."""
 
 from homeassistant import config_entries
 from homeassistant.core import callback
@@ -6,8 +6,8 @@ from homeassistant.core import callback
 from .const import DOMAIN
 
 
-class FaehrRadarLinzConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
-    """Handle a config flow for Fähr-Radar Linz."""
+class FaehrinformationLinzKrippConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
+    """Handle a config flow for Fährinformation Linz/Kripp."""
 
     VERSION = 1
 
@@ -16,7 +16,7 @@ class FaehrRadarLinzConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             await self.async_set_unique_id(DOMAIN)
             self._abort_if_unique_id_configured()
-            return self.async_create_entry(title="Fähr-Radar Linz", data={})
+            return self.async_create_entry(title="Fährinformation Linz/Kripp", data={})
 
         return self.async_show_form(step_id="user")
 
@@ -24,10 +24,10 @@ class FaehrRadarLinzConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     @callback
     def async_get_options_flow(config_entry):
         """Return the options flow."""
-        return FaehrRadarLinzOptionsFlow()
+        return FaehrinformationLinzKrippOptionsFlow()
 
 
-class FaehrRadarLinzOptionsFlow(config_entries.OptionsFlow):
+class FaehrinformationLinzKrippOptionsFlow(config_entries.OptionsFlow):
     """Handle options for the integration."""
 
     async def async_step_init(self, user_input=None):
