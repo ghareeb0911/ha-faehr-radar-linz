@@ -1,11 +1,13 @@
 {
   "domain": "faehr_radar_linz",
   "name": "Fähr-Radar Linz",
-  "codeowners": ["ghareeb0911"],
+  "codeowners": [
+    "ghareeb0911"
+  ],
   "config_flow": true,
   "documentation": "https://github.com/ghareeb0911/ha-faehr-radar-linz",
   "issue_tracker": "https://github.com/ghareeb0911/ha-faehr-radar-linz/issues",
   "iot_class": "cloud_polling",
   "requirements": [],
-  "version": "0.1.1"
+  "version": "0.1.2"
 }
