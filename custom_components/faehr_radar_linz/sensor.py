@@ -17,52 +17,36 @@ from .const import DOMAIN, FERRIES
 
 
 FERRY_SENSORS: tuple[SensorEntityDescription, ...] = (
-    SensorEntityDescription(
-        key="movement_state", name="Bewegungsstatus", icon="mdi:ship-wheel"
-    ),
+    SensorEntityDescription(key="ship_name", name="Schiffsname", icon="mdi:ferry"),
+    SensorEntityDescription(key="movement_state", name="Bewegungsstatus", icon="mdi:ship-wheel"),
     SensorEntityDescription(key="status", name="API-Status", icon="mdi:information-outline"),
     SensorEntityDescription(key="stationary_location", name="Standort", icon="mdi:map-marker"),
     SensorEntityDescription(key="last_dock", name="Letzter Anleger", icon="mdi:anchor"),
     SensorEntityDescription(key="next_dock", name="Nächster Anleger", icon="mdi:map-marker-radius"),
-    SensorEntityDescription(key="eta_dock_a", name="ETA Linz", icon="mdi:clock-outline"),
-    SensorEntityDescription(key="eta_dock_b", name="ETA Kripp", icon="mdi:clock-outline"),
+    SensorEntityDescription(key="eta_dock_a_name", name="Anleger A", icon="mdi:map-marker"),
+    SensorEntityDescription(key="eta_dock_b_name", name="Anleger B", icon="mdi:map-marker"),
+    SensorEntityDescription(key="eta_dock_a", name="ETA Anleger A", icon="mdi:clock-outline"),
+    SensorEntityDescription(key="eta_dock_b", name="ETA Anleger B", icon="mdi:clock-outline"),
+    SensorEntityDescription(key="eta_minutes", name="ETA Minuten", icon="mdi:timer-sand", native_unit_of_measurement="min"),
     SensorEntityDescription(
-        key="eta_minutes", name="ETA Minuten", icon="mdi:timer-sand", native_unit_of_measurement="min"
-    ),
-    SensorEntityDescription(
-        key="speed_knots",
-        name="Geschwindigkeit Knoten",
-        icon="mdi:speedometer",
-        native_unit_of_measurement=UnitOfSpeed.KNOTS,
-        device_class=SensorDeviceClass.SPEED,
+        key="speed_knots", name="Geschwindigkeit Knoten", icon="mdi:speedometer",
+        native_unit_of_measurement=UnitOfSpeed.KNOTS, device_class=SensorDeviceClass.SPEED,
         suggested_display_precision=2,
     ),
     SensorEntityDescription(
-        key="speed_kmh",
-        name="Geschwindigkeit km/h",
-        icon="mdi:speedometer",
+        key="speed_kmh", name="Geschwindigkeit km/h", icon="mdi:speedometer",
         native_unit_of_measurement=UnitOfSpeed.KILOMETERS_PER_HOUR,
-        device_class=SensorDeviceClass.SPEED,
-        suggested_display_precision=2,
+        device_class=SensorDeviceClass.SPEED, suggested_display_precision=2,
     ),
+    SensorEntityDescription(key="course_degrees", name="Kurs", icon="mdi:compass", native_unit_of_measurement="°"),
     SensorEntityDescription(
-        key="course_degrees", name="Kurs", icon="mdi:compass", native_unit_of_measurement="°"
-    ),
-    SensorEntityDescription(
-        key="dock_distance_meters",
-        name="Entfernung zum Anleger",
-        icon="mdi:map-marker-distance",
-        native_unit_of_measurement=UnitOfLength.METERS,
-        device_class=SensorDeviceClass.DISTANCE,
+        key="dock_distance_meters", name="Entfernung zum Anleger", icon="mdi:map-marker-distance",
+        native_unit_of_measurement=UnitOfLength.METERS, device_class=SensorDeviceClass.DISTANCE,
         suggested_display_precision=1,
     ),
-    SensorEntityDescription(
-        key="progress_percent",
-        name="Fortschritt",
-        icon="mdi:progress-clock",
-        native_unit_of_measurement=PERCENTAGE,
-    ),
+    SensorEntityDescription(key="progress_percent", name="Fortschritt", icon="mdi:progress-clock", native_unit_of_measurement=PERCENTAGE),
     SensorEntityDescription(key="timestamp_formatted", name="Zeitstempel", icon="mdi:clock-digital"),
+    SensorEntityDescription(key="timestamp", name="Zeitstempel Unix", icon="mdi:clock"),
     SensorEntityDescription(key="mmsi", name="MMSI", icon="mdi:identifier"),
     SensorEntityDescription(key="latitude", name="Breitengrad", icon="mdi:latitude"),
     SensorEntityDescription(key="longitude", name="Längengrad", icon="mdi:longitude"),
@@ -123,13 +107,7 @@ class FerryDataSensor(CoordinatorEntity, SensorEntity):
     entity_description: SensorEntityDescription
     _attr_has_entity_name = True
 
-    def __init__(
-        self,
-        coordinator,
-        ferry_name: str,
-        config: dict,
-        description: SensorEntityDescription,
-    ) -> None:
+    def __init__(self, coordinator, ferry_name: str, config: dict, description: SensorEntityDescription) -> None:
         """Initialize an individual data sensor."""
         super().__init__(coordinator)
         self.ferry_name = ferry_name
