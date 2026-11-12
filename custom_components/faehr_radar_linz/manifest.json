@@ -1,0 +1,10 @@
+{
+  "domain": "faehr_radar_linz",
+  "name": "Fähr-Radar Linz",
+  "codeowners": [],
+  "config_flow": true,
+  "documentation": "https://github.com/ghareeb0911/ha-faehr-radar-linz",
+  "iot_class": "cloud_polling",
+  "requirements": [],
+  "version": "0.1.0"
+}
