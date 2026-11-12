@@ -18,6 +18,11 @@ from .const import API_URL, FERRIES, SCAN_INTERVAL
 _LOGGER = logging.getLogger(__name__)
 
 
+def _normalize_ferry_name(name: object) -> str:
+    """Normalize a ferry name for matching despite spaces or punctuation."""
+    return "".join(character for character in str(name).upper() if character.isalnum())
+
+
 def _ferries_from_payload(payload: object) -> dict[str, dict]:
     """Return all configured ferries found in the API response."""
     candidates = payload
@@ -36,9 +41,17 @@ def _ferries_from_payload(payload: object) -> dict[str, dict]:
     for item in candidates:
         if not isinstance(item, dict):
             continue
-        name = str(item.get("ship_name", item.get("name", ""))).strip().upper()
-        if name in FERRIES:
-            ferries[name] = item
+        name = _normalize_ferry_name(item.get("ship_name", item.get("name", "")))
+        configured_name = next(
+            (
+                ferry_name
+                for ferry_name in FERRIES
+                if _normalize_ferry_name(ferry_name) == name
+            ),
+            None,
+        )
+        if configured_name:
+            ferries[configured_name] = item
 
     return ferries
 
