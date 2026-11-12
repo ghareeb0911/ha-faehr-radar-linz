@@ -34,7 +34,7 @@ class FerrySpeechSensor(CoordinatorEntity, SensorEntity):
             identifiers={(DOMAIN, "st_johannes")},
             name="Fähre St. Johannes",
             manufacturer="Fähr-Radar Linz",
-            configuration_url="https://faehr-radar-linz.de/",
+            configuration_url="https://github.com/ghareeb0911/ha-faehr-radar-linz",
         )
 
     @property
