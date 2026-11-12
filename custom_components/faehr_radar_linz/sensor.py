@@ -6,7 +6,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import DOMAIN
+from .const import DOMAIN, FERRIES
 
 
 async def async_setup_entry(
@@ -14,25 +14,31 @@ async def async_setup_entry(
     entry: ConfigEntry,
     async_add_entities,
 ) -> None:
-    """Set up the ferry status sensor."""
+    """Set up one status sensor for each ferry."""
     coordinator = hass.data[DOMAIN][entry.entry_id]
-    async_add_entities([FerrySpeechSensor(coordinator)])
+    async_add_entities(
+        [
+            FerrySpeechSensor(coordinator, ferry_name, config)
+            for ferry_name, config in FERRIES.items()
+        ]
+    )
 
 
 class FerrySpeechSensor(CoordinatorEntity, SensorEntity):
-    """Human-readable ferry status for voice assistants."""
+    """Human-readable ferry status with original API attributes."""
 
     _attr_has_entity_name = True
     _attr_name = "Status"
     _attr_icon = "mdi:ferry"
 
-    def __init__(self, coordinator) -> None:
-        """Initialize the sensor."""
+    def __init__(self, coordinator, ferry_name: str, config: dict) -> None:
+        """Initialize the sensor for one ferry."""
         super().__init__(coordinator)
-        self._attr_unique_id = "st_johannes_status"
+        self.ferry_name = ferry_name
+        self._attr_unique_id = f"{config['device_id']}_status"
         self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, "st_johannes")},
-            name="Fähre St. Johannes",
+            identifiers={(DOMAIN, config["device_id"])},
+            name=config["device_name"],
             manufacturer="Fähr-Radar Linz",
             configuration_url="https://github.com/ghareeb0911/ha-faehr-radar-linz",
         )
@@ -40,13 +46,13 @@ class FerrySpeechSensor(CoordinatorEntity, SensorEntity):
     @property
     def native_value(self) -> str:
         """Return the spoken status."""
-        return self.coordinator.data["message"]
+        return self.coordinator.data[self.ferry_name]["message"]
 
     @property
     def extra_state_attributes(self) -> dict:
-        """Expose useful details for automations."""
+        """Expose all original API fields plus calculated values."""
         return {
             key: value
-            for key, value in self.coordinator.data.items()
-            if key != "message" and value is not None
+            for key, value in self.coordinator.data[self.ferry_name].items()
+            if key != "message"
         }
