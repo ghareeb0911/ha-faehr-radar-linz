@@ -2,19 +2,17 @@
 
 Home Assistant custom integration for the **St. Johannes** and **Linz Remagen** ferries between Linz am Rhein and Remagen-Kripp.
 
-The integration creates one human-readable status sensor per ferry. Every original field returned by the API is exposed unchanged as a sensor attribute, alongside the calculated `eta_minutes` value. The sensors are designed for dashboards, automations and voice assistants such as Siri.
-
 ## Features
 
-- Tracks **ST. JOHANNES** and **LINZ REMAGEN** independently.
-- Creates a separate device and status sensor for each ferry.
-- Spoken status with location, direction and estimated arrival when available.
-- Exposes all original API fields as attributes, including fields whose value is `null`.
-- Adds the calculated `eta_minutes` attribute.
+- Tracks **ST. JOHANNES** and **LINZ REMAGEN** independently, with one Home Assistant device per ferry.
+- Provides a spoken status sensor with location, direction and estimated arrival.
+- Exposes the original API response fields as attributes on the status sensor, including fields whose value is `null`.
+- Also creates individual entities for the most useful API values: movement/API status, location, last/next dock, dock names and ETAs, ETA minutes, speed, course, distance to dock, progress, timestamps, MMSI, coordinates and dock-presence flags.
+- Publishes speed in both original knots and converted km/h (`knots × 1.852`).
+- Missing values remain `unknown`/unavailable instead of being shown as zero.
 - Refreshes both ferries in one API request every 10 seconds.
-- If one ferry is temporarily missing from the API response, its sensor remains available with an explanatory status.
-- No API key or account required.
-- No dashboard card or map required.
+- If one ferry is temporarily missing from the API response, its status sensor remains available with an explanatory status.
+- No API key or account required. No dashboard card or map required.
 
 ## Installation via HACS
 
@@ -30,11 +28,7 @@ Until the integration is included in the HACS default store:
 
 ## Entities
 
-The integration creates:
-- A status sensor for **Fähre St. Johannes**.
-- A status sensor for **Fähre Linz Remagen**.
-
-Each sensor's state contains the spoken status. Its attributes contain the original API response fields and the calculated `eta_minutes` value.
+The integration creates a status entity and individual data entities for each ferry. All entities belonging to a ferry are grouped under that ferry's device. The status entity retains the complete API data as attributes for advanced use.
 
 ## Data source
 
