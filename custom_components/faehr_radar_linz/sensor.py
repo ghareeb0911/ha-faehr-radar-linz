@@ -23,13 +23,13 @@ class FerrySpeechSensor(CoordinatorEntity, SensorEntity):
     """Human-readable ferry status for voice assistants."""
 
     _attr_has_entity_name = True
-    _attr_name = "Sprachstatus"
+    _attr_name = "Status"
     _attr_icon = "mdi:ferry"
 
     def __init__(self, coordinator) -> None:
         """Initialize the sensor."""
         super().__init__(coordinator)
-        self._attr_unique_id = "st_johannes_sprachstatus"
+        self._attr_unique_id = "st_johannes_status"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, "st_johannes")},
             name="Fähre St. Johannes",
