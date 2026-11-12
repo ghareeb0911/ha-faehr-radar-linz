@@ -9,7 +9,7 @@ FERRIES = {
         "device_id": "st_johannes",
         "device_name": "Fähre St. Johannes",
     },
-    "LINZ REMAGEN": {
+    "LINZ-REMAGEN": {
         "device_id": "linz_remagen",
         "device_name": "Fähre Linz Remagen",
     },
