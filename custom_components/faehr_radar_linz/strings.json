@@ -2,8 +2,8 @@
   "config": {
     "step": {
       "user": {
-        "title": "Fähr-Radar Linz",
-        "description": "Fügt Statussensoren für die Fähren St. Johannes und Linz Remagen hinzu."
+        "title": "Fährinformation Linz/Kripp",
+        "description": "Fügt Status- und Datensensoren für die Fähren St. Johannes und Linz Remagen hinzu."
       }
     },
     "abort": {
