@@ -1,4 +1,4 @@
-"""Sensor platform for Fähr-Radar Linz."""
+"""Sensor platform for Fährinformation Linz/Kripp."""
 
 from __future__ import annotations
 
@@ -147,6 +147,6 @@ def _device_info(config: dict) -> DeviceInfo:
     return DeviceInfo(
         identifiers={(DOMAIN, config["device_id"])},
         name=config["device_name"],
-        manufacturer="Fähr-Radar Linz",
-        configuration_url="https://github.com/ghareeb0911/ha-faehr-radar-linz",
+        manufacturer="Fährinformation Linz/Kripp",
+        configuration_url="https://github.com/ghareeb0911/faehrinformation-linz-kripp",
     )
