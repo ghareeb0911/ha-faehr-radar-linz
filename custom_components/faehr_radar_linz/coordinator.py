@@ -102,7 +102,7 @@ def _prepare_data(ferry: dict) -> dict:
             )
         else:
             message = f"Wartet in {location}. Das nächste Ziel ist noch unbekannt."
-    elif status in ("MOVING", "IN_MOTION", "UNDERWAY"):
+    elif status in ("MOVING", "IN_MOTION", "UNDERWAY") or status.startswith("MOVING_TO_DOCK_"):
         route = f"von {last_dock} " if last_dock else ""
         destination = str(next_dock or "unbekannt")
         message = (
