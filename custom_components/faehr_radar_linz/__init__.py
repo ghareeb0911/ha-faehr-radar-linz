@@ -1,4 +1,4 @@
-"""The Fähr-Radar Linz integration."""
+"""The Fährinformation Linz/Kripp integration."""
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
@@ -15,7 +15,7 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Set up Fähr-Radar Linz from a config entry."""
+    """Set up Fährinformation Linz/Kripp from a config entry."""
     coordinator = FerryDataUpdateCoordinator(hass)
     await coordinator.async_config_entry_first_refresh()
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = coordinator
