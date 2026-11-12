@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "Fähr-Radar Linz",
-        "description": "Fügt den Sprachstatus der Fähre St. Johannes zwischen Linz am Rhein und Remagen-Kripp hinzu."
+        "description": "Fügt Statussensoren für die Fähren St. Johannes und Linz Remagen hinzu."
       }
     },
     "abort": {
