@@ -1,0 +1,13 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Fähr-Radar Linz",
+        "description": "Fügt den Sprachstatus der Fähre St. Johannes zwischen Linz am Rhein und Remagen-Kripp hinzu."
+      }
+    },
+    "abort": {
+      "already_configured": "Die Integration ist bereits eingerichtet."
+    }
+  }
+}
