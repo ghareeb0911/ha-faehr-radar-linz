@@ -1,7 +1,8 @@
-"""Fetch and prepare ferry data."""
+"""Fetch and prepare data for all ferries."""
 
 from __future__ import annotations
 
+import logging
 from datetime import datetime, time, timedelta
 
 import aiohttp
@@ -12,11 +13,13 @@ from homeassistant.helpers.update_coordinator import (
     UpdateFailed,
 )
 
-from .const import API_URL, FERRY_NAME, SCAN_INTERVAL
+from .const import API_URL, FERRIES, SCAN_INTERVAL
+
+_LOGGER = logging.getLogger(__name__)
 
 
-def _ferry_from_payload(payload: object) -> dict:
-    """Find the St. Johannes entry in the API response."""
+def _ferries_from_payload(payload: object) -> dict[str, dict]:
+    """Return all configured ferries found in the API response."""
     candidates = payload
     if isinstance(payload, dict):
         for key in ("ferries", "data", "items"):
@@ -29,14 +32,15 @@ def _ferry_from_payload(payload: object) -> dict:
     if not isinstance(candidates, list):
         raise UpdateFailed("Unerwartetes Datenformat der Fähr-Radar-API")
 
+    ferries = {}
     for item in candidates:
         if not isinstance(item, dict):
             continue
         name = str(item.get("ship_name", item.get("name", ""))).strip().upper()
-        if name == FERRY_NAME:
-            return item
+        if name in FERRIES:
+            ferries[name] = item
 
-    raise UpdateFailed(f"Fähre {FERRY_NAME} wurde in der API-Antwort nicht gefunden")
+    return ferries
 
 
 def _eta_minutes(eta_value: object) -> int | None:
@@ -65,8 +69,10 @@ def _eta_minutes(eta_value: object) -> int | None:
 
 
 def _prepare_data(ferry: dict) -> dict:
-    """Create a compact, presentation-ready sensor payload."""
-    status = str(ferry.get("movement_state", ferry.get("status", "unknown"))).strip().upper()
+    """Preserve API fields and add the spoken message and calculated ETA."""
+    status = str(
+        ferry.get("movement_state", ferry.get("status", "unknown"))
+    ).strip().upper()
     next_dock = ferry.get("next_dock")
     last_dock = ferry.get("last_dock")
     stationary_location = ferry.get("stationary_location")
@@ -102,7 +108,10 @@ def _prepare_data(ferry: dict) -> dict:
             )
         else:
             message = f"Wartet in {location}. Das nächste Ziel ist noch unbekannt."
-    elif status in ("MOVING", "IN_MOTION", "UNDERWAY") or status.startswith("MOVING_TO_DOCK_"):
+    elif (
+        status in ("MOVING", "IN_MOTION", "UNDERWAY")
+        or status.startswith("MOVING_TO_DOCK_")
+    ):
         route = f"von {last_dock} " if last_dock else ""
         destination = str(next_dock or "unbekannt")
         message = (
@@ -113,39 +122,48 @@ def _prepare_data(ferry: dict) -> dict:
         message = f"Fährstatus derzeit nicht verfügbar ({status.lower()})."
 
     return {
+        **ferry,
         "message": message,
-        "ship_name": ferry.get("ship_name", FERRY_NAME),
-        "movement_state": status.lower(),
-        "stationary_location": stationary_location,
-        "next_dock": next_dock,
-        "last_dock": last_dock,
         "eta_minutes": minutes,
-        "speed_knots": ferry.get("speed_knots"),
-        "dock_distance_meters": ferry.get("dock_distance_meters"),
-        "timestamp_formatted": ferry.get("timestamp_formatted"),
     }
 
 
-class FerryDataUpdateCoordinator(DataUpdateCoordinator[dict]):
-    """Coordinate API updates."""
+class FerryDataUpdateCoordinator(DataUpdateCoordinator[dict[str, dict]]):
+    """Fetch both ferries in one API request and coordinate their data."""
 
     def __init__(self, hass: HomeAssistant) -> None:
         self.session = async_get_clientsession(hass)
         super().__init__(
             hass,
-            logger=__import__("logging").getLogger(__name__),
+            logger=_LOGGER,
             name="Fähr-Radar Linz",
             update_interval=SCAN_INTERVAL,
         )
 
-    async def _async_update_data(self) -> dict:
-        """Fetch the ferry data."""
+    async def _async_update_data(self) -> dict[str, dict]:
+        """Fetch and prepare the data for each configured ferry."""
         try:
-            async with self.session.get(API_URL, timeout=aiohttp.ClientTimeout(total=15)) as response:
+            async with self.session.get(
+                API_URL, timeout=aiohttp.ClientTimeout(total=15)
+            ) as response:
                 response.raise_for_status()
                 payload = await response.json(content_type=None)
         except (aiohttp.ClientError, TimeoutError, ValueError) as err:
             raise UpdateFailed(f"Fehler beim Abrufen der Fährdaten: {err}") from err
 
-        ferry = _ferry_from_payload(payload)
-        return _prepare_data(ferry)
+        found = _ferries_from_payload(payload)
+        result = {}
+        for ferry_name, config in FERRIES.items():
+            ferry = found.get(ferry_name)
+            if ferry is None:
+                _LOGGER.warning("Fähre %s fehlt in der API-Antwort", ferry_name)
+                result[ferry_name] = {
+                    "ship_name": ferry_name,
+                    "movement_state": "unavailable",
+                    "message": "Für diese Fähre liegen derzeit keine API-Daten vor.",
+                    "eta_minutes": None,
+                }
+            else:
+                result[ferry_name] = _prepare_data(ferry)
+
+        return result
